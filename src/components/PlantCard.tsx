@@ -6,15 +6,14 @@ interface PlantCardProps {
   plant: Plant;
 }
 
-// Wrap in React.memo to prevent unnecessary re-renders
 export const PlantCard: React.FC<PlantCardProps> = React.memo(({ plant }) => {
-  const difficultyColors: Record<string, string> = {
+  const difficultyColors: Record<'Easy' | 'Medium' | 'Hard', string> = {
     Easy: 'text-green-600 bg-green-50',
     Medium: 'text-yellow-600 bg-yellow-50',
     Hard: 'text-red-600 bg-red-50'
   };
 
-  const colorClass = difficultyColors[plant.difficulty] || 'text-gray-600 bg-gray-50';
+  const colorClass = difficultyColors[plant.difficulty as 'Easy' | 'Medium' | 'Hard'] || 'text-gray-600 bg-gray-50';
 
   return (
     <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 overflow-hidden group">
@@ -23,8 +22,9 @@ export const PlantCard: React.FC<PlantCardProps> = React.memo(({ plant }) => {
           src={plant.image}
           alt={plant.name}
           loading="lazy"
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-0"
-          onLoad={(e) => (e.currentTarget.style.opacity = '1')} // fade-in effect
+          style={{ opacity: 0 }}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          onLoad={(e) => (e.currentTarget.style.opacity = '1')}
         />
 
         {!plant.available && (
