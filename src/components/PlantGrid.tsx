@@ -7,7 +7,6 @@ export const PlantPage: React.FC = () => {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
-  // Stable fetch function
   const fetchPlants = React.useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -26,22 +25,18 @@ export const PlantPage: React.FC = () => {
     }
   }, []);
 
-  // Initial fetch
   React.useEffect(() => {
     fetchPlants();
   }, [fetchPlants]);
 
-  // Only show available plants
   const visiblePlants = React.useMemo(() => plants.filter(p => p.available), [plants]);
 
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Our Plants</h1>
 
-      {/* Show loading */}
       {loading && <div className="text-gray-500">Loading plants...</div>}
 
-      {/* Show error with retry */}
       {error && !loading && (
         <div className="text-red-600 mb-4">
           {error}{' '}
@@ -54,7 +49,6 @@ export const PlantPage: React.FC = () => {
         </div>
       )}
 
-      {/* Show plant grid only if not loading */}
       {!loading && !error && (
         <PlantGrid
           plants={visiblePlants}
