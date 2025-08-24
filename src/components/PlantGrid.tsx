@@ -1,63 +1,47 @@
 import React from 'react';
 import { Plant } from '../types';
-import { PlantGrid } from './PlantGrid';
+import { PlantCard } from './PlantCard';
+import { LoadingSkeleton } from './common/LoadingSkeleton';
+import { ErrorMessage } from './common/ErrorMessage';
 
-export const PlantPage: React.FC = () => {
-  const [plants, setPlants] = React.useState<Plant[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
+interface PlantGridProps {
+  plants: Plant[];
+  loading: boolean;
+  error: string | null;
+  onRetry: () => void;
+}
 
-  // Fetch plants from API or local data
-  React.useEffect(() => {
-    const fetchPlants = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+// Wrap PlantGrid in React.memo for performance
+export const PlantGrid: React.FC<PlantGridProps> = React.memo(({ plants, loading, error, onRetry }) => {
+  if (error) {
+    return <ErrorMessage message={error} onRetry={onRetry} />;
+  }
 
-        const response = await fetch('/api/plants'); // replace with your API
-        if (!response.ok) throw new Error('Failed to fetch plants');
-        const data: Plant[] = await response.json();
+  if (loading) {
+    return <LoadingSkeleton />;
+  }
 
-        setPlants(data);
-      } catch (err: any) {
-        setError(err.message || 'Something went wrong');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPlants();
-  }, []);
-
-  // Memoize plants array to prevent unnecessary re-renders of PlantGrid
-  const visiblePlants = React.useMemo(() => {
-    // Example: filter available plants
-    return plants.filter((p) => p.available);
-  }, [plants]);
-
-  // Retry function for errors
-  const handleRetry = () => {
-    setError(null);
-    setLoading(true);
-    // Trigger fetch again
-    fetch('/api/plants')
-      .then((res) => res.json())
-      .then((data: Plant[]) => {
-        setPlants(data);
-        setLoading(false);
-      })
-      .catch(() => setError('Failed to load plants'));
-  };
+  if (plants.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-gray-400 mb-4 flex justify-center">
+          <div className="h-24 w-24 bg-gray-100 rounded-full flex items-center justify-center">
+            <span className="text-4xl">🌱</span>
+          </div>
+        </div>
+        <h3 className="text-lg font-medium text-gray-700 mb-2">No plants found</h3>
+        <p className="text-gray-500">Try adjusting your search or filter criteria.</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Our Plants</h1>
-      <PlantGrid
-        plants={visiblePlants}  // ✅ stable reference
-        loading={loading}
-        error={error}
-        onRetry={handleRetry}
-      />
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {plants.map((plant) => (
+        <PlantCard key={plant.id} plant={plant} />
+      ))}
     </div>
   );
-};
+});
+
+PlantGrid.displayName = 'PlantGrid';
