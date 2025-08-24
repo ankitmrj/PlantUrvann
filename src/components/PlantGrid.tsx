@@ -11,7 +11,7 @@ interface PlantGridProps {
   onRetry: () => void;
 }
 
-export const PlantGrid: React.FC<PlantGridProps> = ({ plants, loading, error, onRetry }) => {
+export const PlantGrid: React.FC<PlantGridProps> = React.memo(({ plants, loading, error, onRetry }) => {
   if (error) {
     return <ErrorMessage message={error} onRetry={onRetry} />;
   }
@@ -41,4 +41,6 @@ export const PlantGrid: React.FC<PlantGridProps> = ({ plants, loading, error, on
       ))}
     </div>
   );
-};
+});
+
+PlantGrid.displayName = 'PlantGrid';
